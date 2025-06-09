@@ -33,19 +33,24 @@ def test_get_bookings_empty():
     assert response.json() == []
 
 def test_get_bookings_after_booking():
-    # Book a class first
+    # Always reset DB and seed before this test to ensure slots are available
+    init_db()
+    seed_data()
+    import uuid
+    unique_email = f"testuser_{uuid.uuid4()}@example.com"
+    # Use a class with more available slots (e.g., class_id 2 or 3)
     book_response = client.post(
         "/book",
         json={
-            "class_id": 1,
+            "class_id": 2,
             "client_name": "Test User",
-            "client_email": "testuser@example.com"
+            "client_email": unique_email
         }
     )
     assert book_response.status_code == 200
     # Now get bookings for that email
-    response = client.get("/bookings?email=testuser@example.com")
+    response = client.get(f"/bookings?email={unique_email}")
     assert response.status_code == 200
     bookings = response.json()
     assert isinstance(bookings, list)
-    assert any(b["client_email"] == "testuser@example.com" for b in bookings)
+    assert any(b["client_email"] == unique_email for b in bookings)

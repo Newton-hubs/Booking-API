@@ -42,7 +42,7 @@ def seed_data():
         # Insert sample classes (all in IST)
         now = datetime.now() + timedelta(days=1)
         classes = [
-            ("Yoga", (now).strftime('%Y-%m-%d %H:%M:%S'), "Amit Sharma", 10),
+            ("Yoga", (now).strftime('%Y-%m-%d %H:%M:%S'), "Amit Sharma", 15),
             ("Zumba", (now + timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S'), "Priya Singh", 15),
             ("HIIT", (now + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'), "Rahul Verma", 12)
         ]

@@ -1,1 +1,9 @@
 2025-06-08 20:34:07,931 WARNING Booking failed: Class 0 not found for user@example.com
+2025-06-09 12:13:24,301 INFO Booking successful: Class 1 booked for john@example.com
+2025-06-09 12:13:31,153 WARNING Booking failed: User john@example.com already booked class 1
+2025-06-09 12:26:56,269 INFO Booking successful: Class 1 booked for jon@example.com
+2025-06-09 12:27:23,090 WARNING Booking failed: User jon@example.com already booked class 1
+2025-06-09 13:16:24,925 INFO Booking successful: Class 2 booked for jhn@example.com
+2025-06-09 13:16:50,510 WARNING Booking failed: User jhn@example.com already booked class 2
+2025-06-09 13:42:41,275 INFO Booking successful: Class 3 booked for john@example.com
+2025-06-09 13:44:22,960 WARNING Booking failed: User john@example.com already booked class 3
