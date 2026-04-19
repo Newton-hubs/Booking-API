@@ -9,9 +9,11 @@ from app.core.logging import logger
 
 settings = get_settings()
 
-# Create all tables on startup (use Alembic migrations in production)
-Base.metadata.create_all(bind=engine)
-
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)  # ← move it here
+    logger.info(f"Server started | env={settings.app_env} db={settings.database_url[:30]}...")
+    
 app = FastAPI(
     title="Fitness Studio Booking API",
     description=(
