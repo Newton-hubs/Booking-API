@@ -10,6 +10,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: sqlite:///./test.db
+      SECRET_KEY: ci-test-secret-key-not-for-production
+      APP_ENV: test
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
