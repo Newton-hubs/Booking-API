@@ -1,6 +1,5 @@
 """
 Test fixtures.
-
 Uses an in-memory SQLite database so tests run without a real PostgreSQL
 instance. The app's `get_db` dependency is overridden with a test session.
 """
@@ -29,11 +28,13 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
+app.router.on_startup.clear()  # ← prevents main.py startup from conflicting with tests
 
 
 @pytest.fixture(autouse=True)
 def setup_database():
     """Recreate all tables before each test, drop after."""
+    Base.metadata.drop_all(bind=engine)   # ← drop first to clear any stale indexes
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
