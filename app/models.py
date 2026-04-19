@@ -38,7 +38,7 @@ class FitnessClass(Base):
 
     __table_args__ = (
         CheckConstraint("available_slots >= 0", name="ck_classes_slots_non_negative"),
-        Index("ix_classes_scheduled_at", "scheduled_at"),
+        # Index("ix_classes_scheduled_at", "scheduled_at"),
     )
 
     bookings = relationship("Booking", back_populates="fitness_class", lazy="select")
@@ -59,8 +59,8 @@ class Booking(Base):
     __table_args__ = (
         # One booking per user per class — enforced at DB level
         UniqueConstraint("class_id", "user_id", name="uq_bookings_class_user"),
-        Index("ix_bookings_user_id", "user_id"),
-        Index("ix_bookings_class_id", "class_id"),
+        # Index("ix_bookings_user_id", "user_id"),
+        # Index("ix_bookings_class_id", "class_id"),
     )
 
     fitness_class = relationship("FitnessClass", back_populates="bookings")
