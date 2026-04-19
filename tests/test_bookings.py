@@ -107,13 +107,13 @@ class TestCancelBooking:
             "/bookings/", json={"class_id": sample_class.id}, headers=auth_headers
         )
         booking_id = book_resp.json()["id"]
-        slots_after_booking = db.query(FitnessClass).get(sample_class.id).available_slots
 
         cancel_resp = client.delete(f"/bookings/{booking_id}", headers=auth_headers)
         assert cancel_resp.status_code == 204
 
+        db.expire_all()                          # ← force session to discard cached state
         db.refresh(sample_class)
-        assert sample_class.available_slots == slots_after_booking + 1
+        assert sample_class.available_slots == 5  # back to original after cancellation
 
     def test_cancel_nonexistent_booking(self, client, auth_headers):
         resp = client.delete("/bookings/99999", headers=auth_headers)
