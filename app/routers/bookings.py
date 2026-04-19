@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
@@ -16,24 +16,12 @@ router = APIRouter(prefix="/bookings", tags=["Bookings"])
 @router.post("/", response_model=BookingOut, status_code=status.HTTP_201_CREATED)
 def book_class(
     payload: BookingRequest,
+    response: Response,                          # ← add this
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user),
 ):
-    """
-    Book a fitness class for the authenticated user.
-
-    Race condition safety: slot decrement uses an atomic UPDATE with a
-    WHERE available_slots > 0 guard. If two requests arrive simultaneously
-    for the last slot, only one UPDATE will match (rowcount=1); the other
-    receives a 409 without ever committing.
-
-    Idempotency: supply an idempotency_key to safely retry this request.
-    Retrying with the same key returns the existing booking instead of
-    creating a duplicate.
-    """
     user_id = current_user["user_id"]
 
-    # ── Idempotency check ────────────────────────────────────────────────────
     if payload.idempotency_key:
         existing = (
             db.query(Booking)
@@ -41,6 +29,7 @@ def book_class(
             .first()
         )
         if existing:
+            response.status_code = status.HTTP_200_OK  # ← add this
             logger.info(
                 f"Idempotent booking returned | key={payload.idempotency_key} "
                 f"booking_id={existing.id}"
@@ -131,10 +120,6 @@ def cancel_booking(
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user),
 ):
-    """
-    Cancel a booking. Only the booking owner can cancel their own booking.
-    Slot is returned to the class on successful cancellation.
-    """
     user_id = current_user["user_id"]
     booking = db.query(Booking).filter(
         Booking.id == booking_id,
@@ -148,13 +133,13 @@ def cancel_booking(
         )
 
     class_id = booking.class_id
-    db.delete(booking)
 
-    # Return the slot
+    # Restore slot first, then delete booking — single commit
     db.execute(
         text("UPDATE classes SET available_slots = available_slots + 1 WHERE id = :class_id"),
         {"class_id": class_id},
     )
+    db.delete(booking)
     db.commit()
 
     logger.info(f"Booking cancelled | booking_id={booking_id} user_id={user_id}")

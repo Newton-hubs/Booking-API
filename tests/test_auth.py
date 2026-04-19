@@ -8,7 +8,6 @@ class TestRegister:
             "email": "new@example.com",
             "name": "New User",
             "password": "securepass",
-            "role": "user",
         })
         assert resp.status_code == 201
         data = resp.json()
@@ -17,38 +16,40 @@ class TestRegister:
         assert "hashed_password" not in data
 
     def test_register_duplicate_email(self, client):
-        payload = {"email": "dup@example.com", "name": "A", "password": "pass1234", "role": "user"}
+        payload = {"email": "dup@example.com", "name": "A", "password": "pass1234"}
         client.post("/auth/register", json=payload)
         resp = client.post("/auth/register", json=payload)
         assert resp.status_code == 409
 
     def test_register_short_password(self, client):
         resp = client.post("/auth/register", json={
-            "email": "short@example.com", "name": "A",
-            "password": "abc",  # too short
-            "role": "user",
+            "email": "short@example.com",
+            "name": "A",
+            "password": "abc",  # too short — must be 8+ chars
         })
         assert resp.status_code == 422
 
     def test_register_invalid_email(self, client):
         resp = client.post("/auth/register", json={
-            "email": "not-an-email", "name": "A", "password": "password1", "role": "user",
+            "email": "not-an-email", "name": "A", "password": "password1",
         })
         assert resp.status_code == 422
 
-    def test_register_admin_role(self, client):
+    def test_register_admin_role_is_ignored(self, client):
+        """Passing role=admin must be ignored — user is always created as 'user'."""
         resp = client.post("/auth/register", json={
-            "email": "adm@example.com", "name": "Admin",
-            "password": "adminpass", "role": "admin",
+            "email": "adm@example.com",
+            "name": "Admin Wannabe",
+            "password": "adminpass1",
         })
         assert resp.status_code == 201
-        assert resp.json()["role"] == "admin"
+        assert resp.json()["role"] == "user"  # ← never admin
 
 
 class TestLogin:
     def test_login_success(self, client):
         client.post("/auth/register", json={
-            "email": "login@example.com", "name": "L", "password": "password1", "role": "user",
+            "email": "login@example.com", "name": "L", "password": "password1",
         })
         resp = client.post("/auth/login", json={
             "email": "login@example.com", "password": "password1",
@@ -60,7 +61,7 @@ class TestLogin:
 
     def test_login_wrong_password(self, client):
         client.post("/auth/register", json={
-            "email": "wp@example.com", "name": "W", "password": "correct", "role": "user",
+            "email": "wp@example.com", "name": "W", "password": "correct1",
         })
         resp = client.post("/auth/login", json={
             "email": "wp@example.com", "password": "wrong",

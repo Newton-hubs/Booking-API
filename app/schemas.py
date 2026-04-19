@@ -14,6 +14,8 @@ class UserRegister(BaseModel):
     @field_validator("password")
     @classmethod
     def password_max_length(cls, v):
+        if len(v.encode("utf-8")) < 8:  # ← add minimum
+            raise ValueError("Password must be at least 8 characters.")
         if len(v.encode("utf-8")) > 72:
             raise ValueError("Password must be 72 characters or fewer.")
         return v
