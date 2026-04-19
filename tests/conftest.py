@@ -93,7 +93,7 @@ def sample_class_full(db):
 def _register_and_login(client, email, password, role="user"):
     client.post("/auth/register", json={
         "email": email, "name": "Test User",
-        "password": password, "role": role,
+        "password": password,
     })
     resp = client.post("/auth/login", json={"email": email, "password": password})
     return resp.json()["access_token"]
@@ -105,8 +105,23 @@ def user_token(client):
 
 
 @pytest.fixture()
-def admin_token(client):
-    return _register_and_login(client, "admin@test.com", "password123", role="admin")
+def admin_token(client, db):
+    from app.models import User
+    from app.core.security import hash_password
+    # Create admin directly in DB, bypassing the API
+    admin = User(
+        email="admin@test.com",
+        name="Admin User",
+        hashed_password=hash_password("password123"),
+        role="admin",
+    )
+    db.add(admin)
+    db.commit()
+    resp = client.post("/auth/login", json={
+        "email": "admin@test.com",
+        "password": "password123"
+    })
+    return resp.json()["access_token"]
 
 
 @pytest.fixture()
