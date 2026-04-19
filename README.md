@@ -1,6 +1,12 @@
 # Fitness Studio Booking API
 
-A production-quality REST API for managing fitness class schedules and bookings. Built with **FastAPI**, **PostgreSQL**, and **SQLAlchemy**.
+![CI](https://github.com/Newton-hubs/Booking-API/actions/workflows/ci.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+A production-oriented REST API for managing fitness class schedules and bookings. Built with **FastAPI**, **PostgreSQL**, and **SQLAlchemy**.
 
 ## What's in this project
 
