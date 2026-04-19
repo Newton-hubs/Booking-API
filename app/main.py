@@ -9,10 +9,7 @@ from app.core.logging import logger
 
 settings = get_settings()
 
-@app.on_event("startup")
-def on_startup():
-    Base.metadata.create_all(bind=engine)  # ← move it here
-    logger.info(f"Server started | env={settings.app_env} db={settings.database_url[:30]}...")
+
     
 app = FastAPI(
     title="Fitness Studio Booking API",
@@ -50,7 +47,7 @@ def health_check():
         "environment": settings.app_env,
     }
 
-
 @app.on_event("startup")
 def on_startup():
+    Base.metadata.create_all(bind=engine)
     logger.info(f"Server started | env={settings.app_env} db={settings.database_url[:30]}...")
