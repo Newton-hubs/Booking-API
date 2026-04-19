@@ -49,5 +49,6 @@ def health_check():
 
 @app.on_event("startup")
 def on_startup():
-    Base.metadata.create_all(bind=engine, checkfirst=True)  # ← add checkfirst=True
+    if settings.app_env != "test":  # ← skip DB creation during tests
+        Base.metadata.create_all(bind=engine, checkfirst=True)
     logger.info(f"Server started | env={settings.app_env} db={settings.database_url[:30]}...")
