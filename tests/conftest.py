@@ -28,7 +28,9 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
-app.router.on_startup.clear()  # ← prevents main.py startup from conflicting with tests
+# Disable ALL startup and shutdown events during tests
+app.router.on_startup.clear()
+app.router.on_shutdown.clear()  # ← prevents main.py startup from conflicting with tests
 
 
 @pytest.fixture(autouse=True)
