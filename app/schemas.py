@@ -8,8 +8,15 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 class UserRegister(BaseModel):
     email: EmailStr
-    name: str = Field(..., min_length=1, max_length=255)
-    password: str = Field(..., min_length=8, description="Minimum 8 characters")
+    name: str
+    password: str
+
+    @field_validator("password")
+    @classmethod
+    def password_max_length(cls, v):
+        if len(v.encode("utf-8")) > 72:
+            raise ValueError("Password must be 72 characters or fewer.")
+        return v
 
 
 class UserLogin(BaseModel):
