@@ -29,11 +29,10 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 # Disable ALL startup and shutdown events during tests
+import app.main as main_module
+main_module.engine = engine
 app.router.on_startup.clear()
-app.router.on_shutdown.clear()  # ← prevents main.py startup from conflicting with tests
-
-from unittest.mock import patch
-patch("app.main.Base.metadata.create_all", lambda *args, **kwargs: None).start()
+app.router.on_shutdown.clear()
 
 
 @pytest.fixture(autouse=True)
